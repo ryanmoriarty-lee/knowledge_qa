@@ -23,3 +23,15 @@ def get_all_files_in_directory(path):
             all_files.append(os.path.abspath(file_path))
 
     return all_files
+
+def is_empty_directory(path):
+    try:
+        return not bool(os.listdir(path))
+    except FileNotFoundError:
+        return True
+    
+def get_sentence_inverted_result(results):
+    return [x[0] for x in results]
+
+def get_sentence_vector_result(results):
+    return [x[0].page_content for x in results]

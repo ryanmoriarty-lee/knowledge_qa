@@ -26,12 +26,14 @@ def extra_info_search(index, query_string):
 
 
 @lru_cache(maxsize=128)
-def inverted_index(index, query_string):
+def inverted_index_search(index, query_string, k=-1):
     keywords = jieba.lcut_for_search(query_string)
     results = []
     for keyword in keywords:
         if len(keyword) >= 2:
             results += content_search(index, keyword) + extra_info_search(index, keyword)
     results = list(set(results))
-    results.sort()
+    results = sorted(results, key=lambda x: x[1], reverse=True)
+    if k != -1:
+        results = results[:k]
     return results

@@ -1,6 +1,7 @@
 from whoosh.index import create_in, open_dir
 from jieba.analyse import ChineseAnalyzer
 from data.document_processor import preprocess_documents
+from common.utils import is_empty_directory
 from whoosh.fields import *
 import pickle
 import logging
@@ -23,7 +24,13 @@ def load_index(index_path, document_path, schema):
         documents = [{"content": sentence} for sentence in sentences]
         add_document_to_index(index, documents)
     else:
-        index = open_dir(index_path)
+        if not is_empty_directory(index_path):
+            index = open_dir(index_path)
+        else:
+            index = create_in(index_path, schema)
+            sentences = preprocess_documents(document_path)
+            documents = [{"content": sentence} for sentence in sentences]
+            add_document_to_index(index, documents)
     return index
 
 

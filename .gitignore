@@ -1,6 +1,8 @@
 daily_test.ipynb
 key.yml
 web_ui
+inverted_index
+vector_index
 
 ### Python ###
 # Byte-compiled / optimized / DLL files

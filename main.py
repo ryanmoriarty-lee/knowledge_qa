@@ -1,9 +1,9 @@
-from data.document_processor import preprocess_documents
 from search.inverted_index import init_inverted_index
 from search.vector_index import init_vector_index
-from search.search_engine import inverted_index
 from common.log import setup_logging
 from common.utils import get_all_files_in_directory
+from chat.chat import get_chatbot
+from chat.chat import complete_human_input
 import os
 import yaml
                         
@@ -19,19 +19,9 @@ inverted_index_path = config.get('Paths', {}).get('inverted_index_path', '.')
 vector_index_path = config.get('Paths', {}).get('vector_index_path', '.')
 
 
-index = init_inverted_index(inverted_index_path, document_path)
+inverted_index = init_inverted_index(inverted_index_path, document_path)
 vector_index = init_vector_index(vector_index_path, get_all_files_in_directory(document_path))
 
-
-
-
-
-
-
-
-
-
-
-
-
-# print(sentences)
+chatbot = get_chatbot()
+output = chatbot.predict(human_input=complete_human_input(inverted_index, vector_index, '谁在祝福我'))
+print(output)
