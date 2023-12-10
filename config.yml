@@ -1,3 +1,4 @@
 Paths:
   document_path: knowledge_base
-  index_path: inverted_index
+  inverted_index_path: inverted_index
+  vector_index_path: vector_index

@@ -10,7 +10,7 @@ def content_search(index, query_string):
         results = searcher.search(query)
         results_set = set()
         for result in results:
-            results_set.add(result.fields()["content"])
+            results_set.add((result.fields()["content"], result.score))
         return list(results_set)
 
 def extra_info_search(index, query_string):
@@ -20,13 +20,13 @@ def extra_info_search(index, query_string):
         results = searcher.search(query)
         results_set = set()
         for result in results:
-            results_set.add(result.fields()["content"])
+            results_set.add((result.fields()["content"], result.score))
         return list(results_set)
     
 
 
 @lru_cache(maxsize=128)
-def search(index, query_string):
+def inverted_index(index, query_string):
     keywords = jieba.lcut_for_search(query_string)
     results = []
     for keyword in keywords:
