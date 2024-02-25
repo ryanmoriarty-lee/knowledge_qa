@@ -3,10 +3,8 @@ import os
 import yaml
 from chat.chat import predict
 
-API_URL = "https://api.openai.com/v1/chat/completions"
 key_file = open('key.yml', 'r', encoding='utf-8')
 keys = yaml.safe_load(key_file)
-open_ai_key = keys.get('openai_key')
 
 def delete_last_conversation(chatbot, history):
     chatbot.pop()
@@ -39,7 +37,6 @@ def get_web_ui():
     title = """<h1 align="center">大语言模型知识库问答系统</h1>"""
     with gr.Blocks() as web_ui:
         gr.HTML(title)
-        keyTxt = gr.Textbox(show_label=True, placeholder=f"在这里输入你的OpenAI API-key...", value=open_ai_key, label="API Key", type="password", visible=False).style(container=True)
         chatbot = gr.Chatbot() 
         history = gr.State([])
         TRUECOMSTANT = gr.State(True)
@@ -57,16 +54,18 @@ def get_web_ui():
         with gr.Accordion("问答模式", open=True):
             qa_type = gr.inputs.Radio(["常规问答", "文档问答"], type="value", default="常规问答", label='选择大模型问答的模式', optional=False)
         with gr.Accordion("参数", open=True):
-            top_p = gr.Slider(minimum=-0, maximum=1.0, value=1.0, step=0.05,
+            top_p = gr.Slider(minimum=0.01, maximum=0.9, value=0.5, step=0.05,
                           interactive=True, label="Top-p (nucleus sampling)",)
-            temperature = gr.Slider(minimum=-0, maximum=5.0, value=1.0,
+            top_k = gr.Slider(minimum=0, maximum=100, value=0, step=1,
+                          interactive=True, label="Top-p (nucleus sampling)",)
+            temperature = gr.Slider(minimum=0.01, maximum=1.99, value=0.5,
                                 step=0.1, interactive=True, label="Temperature",)
 
-        txt.submit(predict, [txt, top_p, temperature, keyTxt, qa_type, chatbot, history], [chatbot, history])
+        txt.submit(predict, [txt, top_p, top_k, temperature, qa_type, chatbot, history], [chatbot, history])
         txt.submit(reset_textbox, [], [txt])
-        submitBtn.click(predict, [txt, top_p, temperature, keyTxt, qa_type, chatbot, history], [chatbot, history], show_progress=True)
+        submitBtn.click(predict, [txt, top_p, top_k, temperature, qa_type, chatbot, history], [chatbot, history], show_progress=True)
         submitBtn.click(reset_textbox, [], [txt])
         emptyBtn.click(reset_state, outputs=[chatbot, history])
-        retryBtn.click(predict, [txt, top_p, temperature, keyTxt, qa_type, chatbot, history, TRUECOMSTANT], [chatbot, history], show_progress=True)
+        retryBtn.click(predict, [txt, top_p, top_k, temperature, qa_type, chatbot, history, TRUECOMSTANT], [chatbot, history], show_progress=True)
         delLastBtn.click(delete_last_conversation, [chatbot, history], [chatbot, history], show_progress=True)
         return web_ui

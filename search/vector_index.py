@@ -1,18 +1,22 @@
 import os
 import logging
-import hashlib
 import PyPDF2
 from tqdm import tqdm
 from common.pdf_func import parse_pdf
 from common.utils import get_file_hash
-from langchain.embeddings import OpenAIEmbeddings
 from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.document_loaders import TextLoader
 from langchain.text_splitter import _split_text_with_regex
 from langchain.vectorstores import FAISS
+from langchain.embeddings import DashScopeEmbeddings
 from typing import List
 import re
+
+import yaml
+key_file = open('key.yml', 'r', encoding='utf-8')
+keys = yaml.safe_load(key_file)
+dashscope_key  = keys['dashscope_key']
 
 class CustomTextSplitter(RecursiveCharacterTextSplitter):
     def _split_text(self, text: str, separators: List[str]) -> List[str]:
@@ -58,7 +62,7 @@ class CustomTextSplitter(RecursiveCharacterTextSplitter):
 
 def get_documents(file_src):
     text_splitter = CustomTextSplitter(
-        separators=['\n\n', '\n', ' ', '\t', ".", "!", "?", ";", "。", "！", "？", "；"]
+        separators=[".", "!", "?", "。", "！", "？"]
     )
 
     documents = []
@@ -111,7 +115,9 @@ def init_vector_index(
     index_name = get_file_hash(file_paths=file_src)
     index_path = os.path.join(vector_index_path, index_name)
 
-    embeddings = OpenAIEmbeddings()
+    embeddings = DashScopeEmbeddings(
+        model="text-embedding-v2", dashscope_api_key=dashscope_key
+    )
 
     if os.path.exists(index_path) and load_from_cache_if_possible:
         logging.info("找到缓存的索引文件，正在加载...")

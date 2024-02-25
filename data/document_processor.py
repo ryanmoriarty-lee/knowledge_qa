@@ -23,7 +23,7 @@ def read_docx(file_path):
         text += paragraph.text + "\n"
     return text
 
-def preprocess_documents(input_path, separator='[.!?;。！？；]'):
+def preprocess_documents(input_path, separator='[.!?。！？]'):
     new_documents = []
 
     if os.path.isdir(input_path):
